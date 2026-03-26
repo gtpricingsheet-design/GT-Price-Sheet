@@ -34,21 +34,99 @@ export function SectionChooser() {
 
       <div className="chooser-cards">
         <div 
-          className="chooser-card"
+          className="chooser-card chooser-card-modern"
           onClick={() => chooseSection('fruit')}
+          style={{
+            background: 'linear-gradient(145deg, rgba(255,255,255,0.95), rgba(255,255,255,0.85))',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(80,140,26,0.15)',
+            boxShadow: '0 4px 24px rgba(80,140,26,0.08), 0 1px 3px rgba(0,0,0,0.04)',
+            transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+            cursor: 'pointer',
+            position: 'relative',
+            overflow: 'hidden'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-8px) scale(1.02)'
+            e.currentTarget.style.boxShadow = '0 20px 40px rgba(80,140,26,0.2), 0 8px 16px rgba(80,140,26,0.1)'
+            e.currentTarget.style.borderColor = 'rgba(80,140,26,0.3)'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0) scale(1)'
+            e.currentTarget.style.boxShadow = '0 4px 24px rgba(80,140,26,0.08), 0 1px 3px rgba(0,0,0,0.04)'
+            e.currentTarget.style.borderColor = 'rgba(80,140,26,0.15)'
+          }}
+          onMouseDown={(e) => {
+            e.currentTarget.style.transform = 'translateY(-4px) scale(0.98)'
+          }}
+          onMouseUp={(e) => {
+            e.currentTarget.style.transform = 'translateY(-8px) scale(1.02)'
+          }}
         >
-          <div className="card-emoji">🍎</div>
-          <div className="card-label">Fruit</div>
-          <div className="card-desc">Berries, Citrus &amp; More</div>
+          <div 
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '4px',
+              background: 'linear-gradient(90deg, #6fbf30, #4a8a16)',
+              opacity: 0,
+              transition: 'opacity 0.3s ease'
+            }}
+            className="card-accent-bar"
+          />
+          <div className="card-emoji" style={{fontSize: '42px', marginBottom: '12px', transition: 'transform 0.3s ease'}}>🍎</div>
+          <div className="card-label" style={{fontSize: '18px', fontWeight: 700, letterSpacing: '-0.01em'}}>Fruit</div>
+          <div className="card-desc" style={{opacity: 0.7, fontSize: '13px', marginTop: '4px'}}>Berries, Citrus &amp; More</div>
         </div>
 
         <div 
-          className="chooser-card"
+          className="chooser-card chooser-card-modern"
           onClick={() => chooseSection('veg')}
+          style={{
+            background: 'linear-gradient(145deg, rgba(255,255,255,0.95), rgba(255,255,255,0.85))',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(80,140,26,0.15)',
+            boxShadow: '0 4px 24px rgba(80,140,26,0.08), 0 1px 3px rgba(0,0,0,0.04)',
+            transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+            cursor: 'pointer',
+            position: 'relative',
+            overflow: 'hidden'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-8px) scale(1.02)'
+            e.currentTarget.style.boxShadow = '0 20px 40px rgba(80,140,26,0.2), 0 8px 16px rgba(80,140,26,0.1)'
+            e.currentTarget.style.borderColor = 'rgba(80,140,26,0.3)'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0) scale(1)'
+            e.currentTarget.style.boxShadow = '0 4px 24px rgba(80,140,26,0.08), 0 1px 3px rgba(0,0,0,0.04)'
+            e.currentTarget.style.borderColor = 'rgba(80,140,26,0.15)'
+          }}
+          onMouseDown={(e) => {
+            e.currentTarget.style.transform = 'translateY(-4px) scale(0.98)'
+          }}
+          onMouseUp={(e) => {
+            e.currentTarget.style.transform = 'translateY(-8px) scale(1.02)'
+          }}
         >
-          <div className="card-emoji">🥦</div>
-          <div className="card-label">Vegetables</div>
-          <div className="card-desc">Roots, Salads &amp; Herbs</div>
+          <div 
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '4px',
+              background: 'linear-gradient(90deg, #6fbf30, #4a8a16)',
+              opacity: 0,
+              transition: 'opacity 0.3s ease'
+            }}
+            className="card-accent-bar"
+          />
+          <div className="card-emoji" style={{fontSize: '42px', marginBottom: '12px', transition: 'transform 0.3s ease'}}>🥦</div>
+          <div className="card-label" style={{fontSize: '18px', fontWeight: 700, letterSpacing: '-0.01em'}}>Vegetables</div>
+          <div className="card-desc" style={{opacity: 0.7, fontSize: '13px', marginTop: '4px'}}>Roots, Salads &amp; Herbs</div>
         </div>
 
         {editorUnlocked && (
