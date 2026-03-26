@@ -2,7 +2,7 @@
 
 import { useGTProduce } from "@/contexts/gt-produce-context";
 
-export function CartSummary({ onCheckout }: { onCheckout: () => void }) {
+export function CartDisplay({ onCheckout }: { onCheckout: () => void }) {
   const { basket } = useGTProduce();
   
   // Safely handle undefined basket during initial render

@@ -2,7 +2,7 @@ export { GTProduceApp } from "./gt-produce-app";
 export { Header } from "./header";
 export { MainContent } from "./main-content";
 export { PriceTable } from "./price-table";
-export { CartSummary } from "./cart-summary";
+export { CartDisplay } from "./cart-display";
 export { SectionChooser } from "./section-chooser";
 export { EditorToolbar } from "./editor-toolbar";
 export { PinOverlay } from "./pin-overlay";

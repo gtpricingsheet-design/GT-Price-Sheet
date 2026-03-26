@@ -3,7 +3,7 @@
 import { useGTProduce } from "@/contexts/gt-produce-context";
 import { Header } from "./header";
 import { MainContent } from "./main-content";
-import { CartSummary } from "./cart-summary";
+import { CartDisplay } from "./cart-display";
 import { SectionChooser } from "./section-chooser";
 import { PinOverlay } from "./pin-overlay";
 import { NameModal } from "./name-modal";
@@ -36,7 +36,7 @@ export function GTProduceApp() {
       <Header />
       <SectionChooser />
       <MainContent />
-      <CartSummary onCheckout={() => setShowCheckout(true)} />
+      <CartDisplay onCheckout={() => setShowCheckout(true)} />
       
       {/* Overlays */}
       {showPinOverlay && <PinOverlay />}
