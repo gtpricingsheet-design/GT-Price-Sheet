@@ -1,4 +1,5 @@
 "use client"
+// Version 3 - GTProduceApp main component
 
 import { useState, useCallback } from 'react'
 import { useGTProduce } from '@/contexts/gt-produce-context'
@@ -26,8 +27,7 @@ export function GTProduceApp() {
     isLoading,
     currentSection,
     DATA,
-    editorUnlocked,
-    clientName
+    editorUnlocked
   } = useGTProduce()
 
   const [searchQuery, setSearchQuery] = useState('')
@@ -69,8 +69,8 @@ export function GTProduceApp() {
               </footer>
             </div>
             
-            {/* Order FAB - only visible when not in edit mode and customer has access */}
-            {clientName && <OrderFAB />}
+            {/* Order FAB - Request Quote button */}
+            <OrderFAB />
           </>
         )}
       </div>

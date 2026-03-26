@@ -11,7 +11,7 @@ interface PriceTableProps {
   searchQuery: string
 }
 
-// Updated: Force fresh module resolution
+// Version 3 - No cart references, uses basket from context
 
 export const PriceTable = memo(function PriceTable({ category, categoryIndex, searchQuery }: PriceTableProps) {
   const {

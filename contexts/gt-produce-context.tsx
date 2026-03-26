@@ -24,6 +24,7 @@ interface GTProduceContextType {
   VEG_DATA: Category[]
   DATA: Category[]
   ORDERS: Record<string, Order>
+  activeOrdersCount: number
   
   // Section state
   currentSection: Section
@@ -60,6 +61,7 @@ interface GTProduceContextType {
   setOrderBrowseSection: (s: 'fruit' | 'veg') => void
   changeQty: (key: string, name: string, price: number, delta: number, section: 'fruit' | 'veg') => void
   submitOrder: (notes: string) => Promise<void>
+  startOrderFlow: () => void
   
   // Dashboard
   dashboardOpen: boolean
@@ -133,6 +135,11 @@ export function GTProduceProvider({ children }: { children: ReactNode }) {
   const [VEG_DATA, setVEG_DATA] = useState<Category[]>(DEFAULT_VEG)
   const [DATA, setDATA] = useState<Category[]>([])
   const [ORDERS, setORDERS] = useState<Record<string, Order>>({})
+  
+  // Computed: active orders count
+  const activeOrdersCount = Object.values(ORDERS).filter(
+    o => o.status === 'pending' || o.status === 'confirmed'
+  ).length
   
   // Section state
   const [currentSection, setCurrentSection] = useState<Section>(null)
@@ -507,6 +514,15 @@ export function GTProduceProvider({ children }: { children: ReactNode }) {
     showToast('Quote submitted', 'success')
   }, [basket, clientName, deliveryMethod, showToast])
   
+  // Start order flow - matches original HTML logic
+  const startOrderFlow = useCallback(() => {
+    if (editorUnlocked) {
+      setShowNameModal(true)
+    } else {
+      openPinPad('client')
+    }
+  }, [editorUnlocked, openPinPad])
+  
   // Dashboard functions
   const updateOrderStatus = useCallback((orderId: string, status: 'uncompleted' | 'pending' | 'completed') => {
     const db = getFirebaseDb()
@@ -672,6 +688,7 @@ export function GTProduceProvider({ children }: { children: ReactNode }) {
     VEG_DATA,
     DATA,
     ORDERS,
+    activeOrdersCount,
     currentSection,
     setCurrentSection,
     chooseSection,
@@ -700,6 +717,7 @@ export function GTProduceProvider({ children }: { children: ReactNode }) {
     setOrderBrowseSection,
     changeQty,
     submitOrder,
+    startOrderFlow,
     dashboardOpen,
     setDashboardOpen,
     dashFilter,

@@ -21,7 +21,7 @@ export function NameModal() {
     }
   }, [showNameModal, clientName])
 
-  const handleSubmit = () => {
+  const confirmName = () => {
     const trimmedName = name.trim()
     if (!trimmedName) {
       showToast('Please enter your name', 'error')
@@ -30,52 +30,34 @@ export function NameModal() {
     setClientName(trimmedName)
     setShowNameModal(false)
     setShowOrderOverlay(true)
-    showToast(`Welcome, ${trimmedName}`, 'success')
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSubmit()
-    }
+  const closeNameModal = () => {
+    setShowNameModal(false)
   }
 
   if (!showNameModal) return null
 
   return (
-    <div 
-      id="nameOverlay" 
-      className="name-overlay open"
-      onClick={(e) => e.target === e.currentTarget && setShowNameModal(false)}
-    >
+    <div className="name-overlay" id="nameOverlay" style={{display: 'flex'}}>
       <div className="name-box">
         <div className="name-icon">👋</div>
-        <h2>Welcome</h2>
-        <p className="name-sub">Please enter your name to continue</p>
-        
-        <input
-          id="clientNameInput"
-          type="text"
-          className="name-input"
-          placeholder="Your name"
+        <h2>Your Details</h2>
+        <div className="name-sub">Enter your business or contact name</div>
+        <input 
+          type="text" 
+          className="name-input" 
+          id="clientNameInput" 
+          placeholder="Business or contact name" 
+          autoComplete="off" 
+          spellCheck={false}
           value={name}
           onChange={(e) => setName(e.target.value)}
-          onKeyDown={handleKeyDown}
+          onKeyDown={(e) => e.key === 'Enter' && confirmName()}
           autoFocus
         />
-        
-        <button 
-          className="name-submit"
-          onClick={handleSubmit}
-        >
-          Continue
-        </button>
-        
-        <button 
-          className="name-cancel"
-          onClick={() => setShowNameModal(false)}
-        >
-          Cancel
-        </button>
+        <button className="name-submit" onClick={confirmName}>Continue</button>
+        <button className="name-cancel" onClick={closeNameModal}>Cancel</button>
       </div>
     </div>
   )
@@ -87,7 +69,7 @@ export function SalesNameModal() {
     setShowSalesNameModal,
     salesmanName,
     setSalesmanName,
-    showToast
+    setDashboardOpen
   } = useGTProduce()
 
   const [name, setName] = useState('')
@@ -98,60 +80,40 @@ export function SalesNameModal() {
     }
   }, [showSalesNameModal, salesmanName])
 
-  const handleSubmit = () => {
+  const confirmSalesName = () => {
     const trimmedName = name.trim()
-    if (!trimmedName) {
-      showToast('Please enter your name', 'error')
-      return
-    }
+    if (!trimmedName) return
     setSalesmanName(trimmedName)
     setShowSalesNameModal(false)
-    showToast(`Welcome, ${trimmedName}`, 'success')
+    setDashboardOpen(true)
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSubmit()
-    }
+  const closeSalesName = () => {
+    setShowSalesNameModal(false)
   }
 
   if (!showSalesNameModal) return null
 
   return (
-    <div 
-      id="salesNameOverlay" 
-      className="name-overlay open"
-      onClick={(e) => e.target === e.currentTarget && setShowSalesNameModal(false)}
-    >
+    <div className="name-overlay" id="salesNameOverlay" style={{display: 'flex'}}>
       <div className="name-box">
         <div className="name-icon">👤</div>
-        <h2>Staff Name</h2>
-        <p className="name-sub">Enter your name for order tracking</p>
-        
-        <input
-          id="salesNameInput"
-          type="text"
-          className="name-input"
-          placeholder="Your name"
+        <h2>Who&apos;s on?</h2>
+        <div className="name-sub">Your name shows on claimed quotes</div>
+        <input 
+          type="text" 
+          className="name-input" 
+          id="salesNameInput" 
+          placeholder="Your first name" 
+          autoComplete="off" 
+          spellCheck={false}
           value={name}
           onChange={(e) => setName(e.target.value)}
-          onKeyDown={handleKeyDown}
+          onKeyDown={(e) => e.key === 'Enter' && confirmSalesName()}
           autoFocus
         />
-        
-        <button 
-          className="name-submit"
-          onClick={handleSubmit}
-        >
-          Continue
-        </button>
-        
-        <button 
-          className="name-cancel"
-          onClick={() => setShowSalesNameModal(false)}
-        >
-          Cancel
-        </button>
+        <button className="name-submit" onClick={confirmSalesName}>Open Dashboard</button>
+        <button className="name-cancel" onClick={closeSalesName}>Cancel</button>
       </div>
     </div>
   )

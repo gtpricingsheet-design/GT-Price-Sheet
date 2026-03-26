@@ -11,6 +11,8 @@ export function Header() {
       ? 'Fresh Vegetables' 
       : 'GT Produce'
   
+  const sectionLabel = currentSection === 'fruit' ? 'Fresh Produce' : 'Fresh Produce'
+  
   const today = new Date().toLocaleDateString('en-GB', {
     day: 'numeric',
     month: 'long',
@@ -21,20 +23,24 @@ export function Header() {
   return (
     <header>
       <div className="logo-wrap">
-        <img 
-          src="/gt-logo-light.png" 
-          alt="GT Produce" 
-          className="gt-logo-light block dark:hidden h-[42px]"
-        />
-        <img 
-          src="/gt-logo-dark.png" 
-          alt="GT Produce" 
-          className="gt-logo-dark hidden dark:block h-[42px]"
-        />
+        <span className="gt-logo-wrap">
+          <img 
+            src="/gt-logo-light.png" 
+            alt="GT Produce" 
+            className="gt-logo-light"
+          />
+          <img 
+            src="/gt-logo-dark.png" 
+            alt="GT Produce" 
+            className="gt-logo-dark"
+          />
+        </span>
       </div>
       <div className="header-rule" />
-      <h1 className="header-title" id="headerTitle">{title}</h1>
-      <p className="header-sub" id="dateField">{today}</p>
+      <div className="header-title" id="headerTitle">{title}</div>
+      <div className="header-sub">
+        <span id="sectionLabel">{sectionLabel}</span> &middot; Leeds &middot; <span id="dateField">{today}</span>
+      </div>
     </header>
   )
 }
