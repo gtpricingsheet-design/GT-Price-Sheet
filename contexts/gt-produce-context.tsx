@@ -15,6 +15,9 @@ import {
 } from '@/lib/firebase'
 
 interface GTProduceContextType {
+  // Loading state
+  isLoading: boolean
+  
   // Data
   fruitData: Category[]
   vegData: Category[]
@@ -36,6 +39,16 @@ interface GTProduceContextType {
   setBasket: (basket: Basket) => void
   deliveryMethod: DeliveryMethod
   setDeliveryMethod: (method: DeliveryMethod) => void
+  
+  // UI state
+  showCheckout: boolean
+  setShowCheckout: (show: boolean) => void
+  showDashboard: boolean
+  setShowDashboard: (show: boolean) => void
+  showNameModal: boolean
+  setShowNameModal: (show: boolean) => void
+  showPinOverlay: boolean
+  setShowPinOverlay: (show: boolean) => void
   
   // Dashboard
   dashFilter: DashFilter
@@ -67,6 +80,9 @@ const PIN_LOCKOUT_MS = 30000
 const IDLE_TIMEOUT_MS = 20 * 60 * 1000 // 20 minutes
 
 export function GTProduceProvider({ children }: { children: ReactNode }) {
+  // Loading state
+  const [isLoading, setIsLoading] = useState(true)
+  
   // Data state
   const [fruitData, setFruitData] = useState<Category[]>(DEFAULT_FRUIT)
   const [vegData, setVegData] = useState<Category[]>(DEFAULT_VEG)
@@ -85,6 +101,12 @@ export function GTProduceProvider({ children }: { children: ReactNode }) {
   const [clientName, setClientName] = useState('')
   const [basket, setBasket] = useState<Basket>({})
   const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>('collection')
+  
+  // UI state
+  const [showCheckout, setShowCheckout] = useState(false)
+  const [showDashboard, setShowDashboard] = useState(false)
+  const [showNameModal, setShowNameModal] = useState(false)
+  const [showPinOverlay, setShowPinOverlay] = useState(false)
   
   // Dashboard state
   const [dashFilter, setDashFilter] = useState<DashFilter>('active')
@@ -139,7 +161,11 @@ export function GTProduceProvider({ children }: { children: ReactNode }) {
     if (!db || !auth) return
     
     // Sign in anonymously
-    signInAnonymously(auth).catch(console.error)
+    signInAnonymously(auth).then(() => {
+      setIsLoading(false)
+    }).catch(() => {
+      setIsLoading(false)
+    })
     
     // Subscribe to fruit data
     const fruitRef = ref(db, 'FRUIT_DATA')
@@ -341,6 +367,7 @@ export function GTProduceProvider({ children }: { children: ReactNode }) {
   }, [idleTimer])
   
   const value: GTProduceContextType = {
+    isLoading,
     fruitData,
     vegData,
     orders,
@@ -355,6 +382,14 @@ export function GTProduceProvider({ children }: { children: ReactNode }) {
     setBasket,
     deliveryMethod,
     setDeliveryMethod,
+    showCheckout,
+    setShowCheckout,
+    showDashboard,
+    setShowDashboard,
+    showNameModal,
+    setShowNameModal,
+    showPinOverlay,
+    setShowPinOverlay,
     dashFilter,
     setDashFilter,
     theme,

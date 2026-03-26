@@ -13,7 +13,14 @@ import { Toast } from "./toast";
 import { ConfirmDialog } from "./confirm-dialog";
 
 export function GTProduceApp() {
-  const { isLoading } = useGTProduce();
+  const { 
+    isLoading, 
+    showCheckout, 
+    setShowCheckout,
+    showDashboard,
+    showNameModal,
+    showPinOverlay
+  } = useGTProduce();
 
   if (isLoading) {
     return (
@@ -29,13 +36,13 @@ export function GTProduceApp() {
       <Header />
       <SectionChooser />
       <MainContent />
-      <CartSummary />
+      <CartSummary onCheckout={() => setShowCheckout(true)} />
       
       {/* Overlays */}
-      <PinOverlay />
-      <NameModal />
-      <CheckoutOverlay />
-      <Dashboard />
+      {showPinOverlay && <PinOverlay />}
+      {showNameModal && <NameModal />}
+      {showCheckout && <CheckoutOverlay />}
+      {showDashboard && <Dashboard />}
       <Toast />
       <ConfirmDialog />
     </div>
