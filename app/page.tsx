@@ -1,6 +1,6 @@
 "use client";
 
-// GT Produce - Price Sheet Application - Fresh Build
+// GT Produce Price Sheet - Complete Fresh Build v3
 import { GTProduceProvider, useGTProduce } from "@/contexts/gt-produce-context";
 import { Header } from "@/components/gt-produce/header";
 import { MainContent } from "@/components/gt-produce/main-content";
@@ -12,16 +12,18 @@ import { Dashboard } from "@/components/gt-produce/dashboard";
 import { Toast } from "@/components/gt-produce/toast";
 import { ConfirmDialog } from "@/components/gt-produce/confirm-dialog";
 
-// Inline cart display component
-function CartDisplayWidget({ onCheckout }: { onCheckout: () => void }) {
+// Basket display - completely new component name
+function BasketWidget({ onCheckout }: { onCheckout: () => void }) {
   const { basket } = useGTProduce();
   
-  // Guard against undefined basket
-  if (!basket) return null;
+  // Explicit null/undefined check before any operations
+  if (basket === null || basket === undefined) {
+    return null;
+  }
   
-  const items = Object.values(basket);
-  const itemCount = items.reduce((sum, item) => sum + item.qty, 0);
-  const cartTotal = items.reduce((sum, item) => sum + item.qty * item.price, 0);
+  const basketItems = Object.values(basket);
+  const itemCount = basketItems.reduce((sum, item) => sum + item.qty, 0);
+  const totalPrice = basketItems.reduce((sum, item) => sum + item.qty * item.price, 0);
 
   if (itemCount === 0) return null;
 
@@ -29,7 +31,7 @@ function CartDisplayWidget({ onCheckout }: { onCheckout: () => void }) {
     <div className="cart-summary">
       <div className="cart-info">
         <span className="cart-count">{itemCount} item{itemCount !== 1 ? "s" : ""}</span>
-        <span className="cart-total">£{cartTotal.toFixed(2)}</span>
+        <span className="cart-total">£{totalPrice.toFixed(2)}</span>
       </div>
       <button className="checkout-btn" onClick={onCheckout}>
         Checkout
@@ -38,7 +40,8 @@ function CartDisplayWidget({ onCheckout }: { onCheckout: () => void }) {
   );
 }
 
-function GTProduceMainApp() {
+// Main application component - fresh name
+function ProduceApp() {
   const { 
     isLoading, 
     showCheckout, 
@@ -62,9 +65,8 @@ function GTProduceMainApp() {
       <Header />
       <SectionChooser />
       <MainContent />
-      <CartDisplayWidget onCheckout={() => setShowCheckout(true)} />
+      <BasketWidget onCheckout={() => setShowCheckout(true)} />
       
-      {/* Overlays */}
       {showPinOverlay && <PinOverlay />}
       {showNameModal && <NameModal />}
       {showCheckout && <CheckoutOverlay />}
@@ -78,7 +80,7 @@ function GTProduceMainApp() {
 export default function Home() {
   return (
     <GTProduceProvider>
-      <GTProduceMainApp />
+      <ProduceApp />
     </GTProduceProvider>
   );
 }
