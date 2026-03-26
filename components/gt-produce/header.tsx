@@ -1,21 +1,33 @@
 "use client";
 
 import { useGTProduce } from "@/contexts/gt-produce-context";
-import { GTLogo } from "./gt-logo";
+import { GTLogoSVG } from "./gt-logo";
 
 export function Header() {
   const {
-    isAdmin,
-    customerName,
+    currentSection,
+    setCurrentSection,
+    editorUnlocked,
+    clientName,
     setShowPinOverlay,
     setShowDashboard,
     setShowNameModal,
+    theme,
+    toggleTheme,
   } = useGTProduce();
+
+  // Only show header when a section is selected
+  if (!currentSection) return null;
 
   return (
     <header className="main-header">
       <div className="header-left">
-        <GTLogo />
+        <button className="back-btn" onClick={() => setCurrentSection(null)}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+        </button>
+        <GTLogoSVG height={36} />
         <div className="header-title">
           <h1>GT Produce</h1>
           <span className="tagline">Fresh Daily Prices</span>
@@ -23,20 +35,28 @@ export function Header() {
       </div>
 
       <div className="header-right">
-        {customerName && (
+        {clientName && (
           <div className="customer-badge" onClick={() => setShowNameModal(true)}>
             <span className="customer-icon">👤</span>
-            <span className="customer-name">{customerName}</span>
+            <span className="customer-name">{clientName}</span>
           </div>
         )}
 
-        {!customerName && (
+        {!clientName && (
           <button className="name-btn" onClick={() => setShowNameModal(true)}>
             Enter Name
           </button>
         )}
 
-        {isAdmin ? (
+        <button
+          className="btn-icon theme-btn"
+          onClick={toggleTheme}
+          title="Toggle theme"
+        >
+          {theme === 'dark' ? '☀️' : '🌙'}
+        </button>
+
+        {editorUnlocked ? (
           <button className="dashboard-btn" onClick={() => setShowDashboard(true)}>
             Dashboard
           </button>

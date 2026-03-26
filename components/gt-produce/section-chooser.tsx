@@ -1,68 +1,65 @@
 "use client"
 
+import { useGTProduce } from "@/contexts/gt-produce-context";
 import { GTLogoSVG } from './gt-logo'
-import type { Section } from '@/lib/types'
 
-interface SectionChooserProps {
-  isVisible: boolean
-  editorUnlocked: boolean
-  pendingOrderCount: number
-  onChooseSection: (section: Section) => void
-  onAdminClick: () => void
-  onDashboardClick: () => void
-  onToggleTheme: () => void
-  theme: 'light' | 'dark'
-}
+export function SectionChooser() {
+  const {
+    currentSection,
+    setCurrentSection,
+    editorUnlocked,
+    orders,
+    setShowPinOverlay,
+    setShowDashboard,
+    theme,
+    toggleTheme,
+  } = useGTProduce();
 
-export function SectionChooser({
-  isVisible,
-  editorUnlocked,
-  pendingOrderCount,
-  onChooseSection,
-  onAdminClick,
-  onDashboardClick,
-  onToggleTheme,
-  theme
-}: SectionChooserProps) {
+  // Hide when a section is selected
+  if (currentSection) return null;
+
+  // Count pending orders
+  const pendingOrderCount = Object.values(orders).filter(o => o.status === 'pending').length;
+
   return (
-    <div id="categoryChooser" className={isVisible ? '' : 'hidden'}>
+    <div id="categoryChooser">
       <div className="chooser-logo">
         <GTLogoSVG height={52} />
       </div>
       <div className="chooser-title">GT Produce</div>
-      <div className="chooser-sub">Wholesale Pricing & Procurement</div>
+      <div className="chooser-sub">Wholesale Pricing &amp; Procurement</div>
       
       <div className="chooser-cards">
         <div
           className="chooser-card"
-          onClick={() => onChooseSection('fruit')}
+          onClick={() => setCurrentSection('fruit')}
           role="button"
           tabIndex={0}
-          onKeyDown={(e) => e.key === 'Enter' && onChooseSection('fruit')}
+          onKeyDown={(e) => e.key === 'Enter' && setCurrentSection('fruit')}
         >
           <div className="card-emoji">🍎</div>
           <div className="card-label">Fruit</div>
-          <div className="card-desc">Berries, Citrus & More</div>
+          <div className="card-desc">Berries, Citrus &amp; More</div>
         </div>
         
         <div
           className="chooser-card"
-          onClick={() => onChooseSection('veg')}
+          onClick={() => setCurrentSection('veg')}
           role="button"
           tabIndex={0}
-          onKeyDown={(e) => e.key === 'Enter' && onChooseSection('veg')}
+          onKeyDown={(e) => e.key === 'Enter' && setCurrentSection('veg')}
         >
           <div className="card-emoji">🥦</div>
           <div className="card-label">Vegetables</div>
-          <div className="card-desc">Roots, Salads & Herbs</div>
+          <div className="card-desc">Roots, Salads &amp; Herbs</div>
         </div>
         
         <div
           className={`chooser-card ${editorUnlocked ? 'chooser-card-quotes' : 'chooser-card-admin'}`}
-          onClick={editorUnlocked ? onDashboardClick : onAdminClick}
+          onClick={editorUnlocked ? () => setShowDashboard(true) : () => setShowPinOverlay(true)}
           role="button"
           tabIndex={0}
-          onKeyDown={(e) => e.key === 'Enter' && (editorUnlocked ? onDashboardClick() : onAdminClick())}
+          onKeyDown={(e) => e.key === 'Enter' && (editorUnlocked ? setShowDashboard(true) : setShowPinOverlay(true))}
         >
           <div className="card-emoji">{editorUnlocked ? '📋' : '🔑'}</div>
           <div className="card-label">{editorUnlocked ? 'Quotes' : 'Admin'}</div>
@@ -83,7 +80,7 @@ export function SectionChooser({
       }}>
         {!editorUnlocked && (
           <button
-            onClick={onAdminClick}
+            onClick={() => setShowPinOverlay(true)}
             style={{
               background: 'linear-gradient(135deg, #4a8a16, #6fbf30)',
               color: '#fff',
@@ -113,7 +110,7 @@ export function SectionChooser({
         
         <button
           className="btn-icon theme-btn"
-          onClick={onToggleTheme}
+          onClick={toggleTheme}
           title="Toggle theme"
         >
           {theme === 'dark' ? '☀️' : '🌙'}

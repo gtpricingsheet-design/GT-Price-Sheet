@@ -5,19 +5,18 @@ import { PriceTable } from "./price-table";
 import { EditorToolbar } from "./editor-toolbar";
 
 export function MainContent() {
-  const { activeSection, isAdmin } = useGTProduce();
+  const { currentSection, editorUnlocked } = useGTProduce();
+
+  // Only show content when a section is selected
+  if (!currentSection) return null;
 
   return (
     <main className="main-content">
-      {isAdmin && <EditorToolbar />}
+      {editorUnlocked && <EditorToolbar />}
       
       <div className="tables-container">
-        {(activeSection === "both" || activeSection === "fruit") && (
-          <PriceTable type="fruit" />
-        )}
-        {(activeSection === "both" || activeSection === "veg") && (
-          <PriceTable type="veg" />
-        )}
+        {currentSection === "fruit" && <PriceTable type="fruit" />}
+        {currentSection === "veg" && <PriceTable type="veg" />}
       </div>
     </main>
   );
