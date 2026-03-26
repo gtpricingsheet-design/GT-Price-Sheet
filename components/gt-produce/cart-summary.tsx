@@ -5,8 +5,10 @@ import { useGTProduce } from "@/contexts/gt-produce-context";
 export function CartSummary({ onCheckout }: { onCheckout: () => void }) {
   const { basket } = useGTProduce();
   
-  // Safely handle undefined basket
-  const items = Object.values(basket ?? {});
+  // Safely handle undefined basket during initial render
+  if (!basket) return null;
+  
+  const items = Object.values(basket);
   const itemCount = items.reduce((sum, item) => sum + item.qty, 0);
   const cartTotal = items.reduce((sum, item) => sum + item.qty * item.price, 0);
 
