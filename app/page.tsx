@@ -1,86 +1,41 @@
 "use client";
 
-// GT Produce Price Sheet - Complete Fresh Build v3
-import { GTProduceProvider, useGTProduce } from "@/contexts/gt-produce-context";
-import { Header } from "@/components/gt-produce/header";
-import { MainContent } from "@/components/gt-produce/main-content";
-import { SectionChooser } from "@/components/gt-produce/section-chooser";
-import { PinOverlay } from "@/components/gt-produce/pin-overlay";
-import { NameModal } from "@/components/gt-produce/name-modal";
-import { CheckoutOverlay } from "@/components/gt-produce/checkout-overlay";
-import { Dashboard } from "@/components/gt-produce/dashboard";
-import { Toast } from "@/components/gt-produce/toast";
-import { ConfirmDialog } from "@/components/gt-produce/confirm-dialog";
-
-// Basket display - completely new component name
-function BasketWidget({ onCheckout }: { onCheckout: () => void }) {
-  const { basket } = useGTProduce();
-  
-  // Explicit null/undefined check before any operations
-  if (basket === null || basket === undefined) {
-    return null;
-  }
-  
-  const basketItems = Object.values(basket);
-  const itemCount = basketItems.reduce((sum, item) => sum + item.qty, 0);
-  const totalPrice = basketItems.reduce((sum, item) => sum + item.qty * item.price, 0);
-
-  if (itemCount === 0) return null;
-
-  return (
-    <div className="cart-summary">
-      <div className="cart-info">
-        <span className="cart-count">{itemCount} item{itemCount !== 1 ? "s" : ""}</span>
-        <span className="cart-total">£{totalPrice.toFixed(2)}</span>
-      </div>
-      <button className="checkout-btn" onClick={onCheckout}>
-        Checkout
-      </button>
-    </div>
-  );
-}
-
-// Main application component - fresh name
-function ProduceApp() {
-  const { 
-    isLoading, 
-    showCheckout, 
-    setShowCheckout,
-    showDashboard,
-    showNameModal,
-    showPinOverlay
-  } = useGTProduce();
-
-  if (isLoading) {
-    return (
-      <div className="loading-screen">
-        <div className="loading-spinner"></div>
-        <p>Loading GT Produce...</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="gt-produce-app">
-      <Header />
-      <SectionChooser />
-      <MainContent />
-      <BasketWidget onCheckout={() => setShowCheckout(true)} />
-      
-      {showPinOverlay && <PinOverlay />}
-      {showNameModal && <NameModal />}
-      {showCheckout && <CheckoutOverlay />}
-      {showDashboard && <Dashboard />}
-      <Toast />
-      <ConfirmDialog />
-    </div>
-  );
-}
+import { useEffect } from "react";
 
 export default function Home() {
+  useEffect(() => {
+    // Redirect to the static HTML file
+    window.location.href = "/index.html";
+  }, []);
+
   return (
-    <GTProduceProvider>
-      <ProduceApp />
-    </GTProduceProvider>
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: '100vh',
+      background: '#f2f1ed',
+      fontFamily: "'DM Sans', sans-serif"
+    }}>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{
+          width: '28px',
+          height: '28px',
+          border: '2px solid #dedad2',
+          borderTopColor: '#508c1a',
+          borderRadius: '50%',
+          animation: 'spin 0.6s linear infinite',
+          margin: '0 auto 20px'
+        }}></div>
+        <p style={{ color: '#888', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase' }}>
+          Loading
+        </p>
+      </div>
+      <style>{`
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
+    </div>
   );
 }
