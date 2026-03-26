@@ -1,8 +1,9 @@
-"use client"
+// GT Produce - Firebase Configuration
+// Matches the Firebase initialization from original HTML
 
 import { initializeApp, getApps, type FirebaseApp } from 'firebase/app'
-import { getDatabase, ref, onValue, set, type Database } from 'firebase/database'
-import { getAuth, signInAnonymously, signInWithEmailAndPassword, signOut, type Auth } from 'firebase/auth'
+import { getDatabase, type Database } from 'firebase/database'
+import { getAuth, type Auth } from 'firebase/auth'
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -11,52 +12,36 @@ const firebaseConfig = {
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 }
 
-let app: FirebaseApp | null = null
-let database: Database | null = null
-let auth: Auth | null = null
+let app: FirebaseApp | undefined
+let db: Database | undefined
+let auth: Auth | undefined
 
-export function getFirebaseApp(): FirebaseApp | null {
-  if (typeof window === 'undefined') return null
+export function initFirebase() {
+  if (typeof window === 'undefined') return { app: undefined, db: undefined, auth: undefined }
   
-  if (!app && getApps().length === 0) {
-    // Only initialize if we have the required config
-    if (firebaseConfig.apiKey && firebaseConfig.databaseURL) {
-      app = initializeApp(firebaseConfig)
-    }
-  } else if (getApps().length > 0) {
+  if (!getApps().length) {
+    app = initializeApp(firebaseConfig)
+  } else {
     app = getApps()[0]
   }
   
+  db = getDatabase(app)
+  auth = getAuth(app)
+  
+  return { app, db, auth }
+}
+
+export function getFirebaseApp() {
   return app
 }
 
-export function getFirebaseDatabase(): Database | null {
-  if (typeof window === 'undefined') return null
-  
-  const firebaseApp = getFirebaseApp()
-  if (!firebaseApp) return null
-  
-  if (!database) {
-    database = getDatabase(firebaseApp)
-  }
-  
-  return database
+export function getFirebaseDb() {
+  return db
 }
 
-export function getFirebaseAuth(): Auth | null {
-  if (typeof window === 'undefined') return null
-  
-  const firebaseApp = getFirebaseApp()
-  if (!firebaseApp) return null
-  
-  if (!auth) {
-    auth = getAuth(firebaseApp)
-  }
-  
+export function getFirebaseAuth() {
   return auth
 }
-
-export { ref, onValue, set, signInAnonymously, signInWithEmailAndPassword, signOut }

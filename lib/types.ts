@@ -1,9 +1,11 @@
 // GT Produce - Type Definitions
+// Matches exactly the data structures in the original HTML
 
 export interface ProduceItem {
   name: string
   price: number
   available: boolean
+  checked?: boolean // Used in orders
 }
 
 export interface SubSection {
@@ -20,28 +22,6 @@ export interface Category {
   subSections?: SubSection[]
 }
 
-export interface OrderItem {
-  name: string
-  qty: number
-  price: string
-  section?: string
-  checked?: boolean
-  lineTotal?: number
-}
-
-export interface Order {
-  id: string
-  customerName: string
-  salesPerson: string
-  deliveryType: 'collection' | 'delivery'
-  items: OrderItem[]
-  total: number
-  status: 'uncompleted' | 'pending' | 'completed'
-  timestamp: number | string
-  section: 'fruit' | 'veg'
-  notes?: string
-}
-
 export interface BasketItem {
   name: string
   price: number
@@ -49,10 +29,31 @@ export interface BasketItem {
   section: 'fruit' | 'veg'
 }
 
-export interface Basket {
-  [key: string]: BasketItem
+export type Basket = Record<string, BasketItem>
+
+export interface OrderItem {
+  name: string
+  price: number
+  qty: number
+  section?: 'fruit' | 'veg'
+  checked?: boolean
 }
 
-export type Section = 'fruit' | 'veg'
+export interface Order {
+  id: string
+  customerName: string
+  items: OrderItem[]
+  total: number
+  status: 'uncompleted' | 'pending' | 'completed'
+  timestamp: number | string
+  deliveryType?: 'collection' | 'delivery'
+  deliveryMethod?: 'collection' | 'delivery'
+  notes?: string
+  claimedBy?: string
+}
+
+export type Section = 'fruit' | 'veg' | null
+export type PinMode = 'client' | 'admin' | 'editor'
 export type DashFilter = 'active' | 'all' | 'completed'
 export type DeliveryMethod = 'collection' | 'delivery'
+export type Theme = 'light' | 'dark'

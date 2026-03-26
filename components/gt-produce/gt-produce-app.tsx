@@ -1,75 +1,90 @@
-"use client";
+"use client"
+// Version 3 - GTProduceApp main component
 
-import { useGTProduce } from "@/contexts/gt-produce-context";
-import { Header } from "./header";
-import { MainContent } from "./main-content";
-import { SectionChooser } from "./section-chooser";
-import { PinOverlay } from "./pin-overlay";
-import { NameModal } from "./name-modal";
-import { CheckoutOverlay } from "./checkout-overlay";
-import { Dashboard } from "./dashboard";
-import { Toast } from "./toast";
-import { ConfirmDialog } from "./confirm-dialog";
-
-// Inline cart display to avoid cache issues
-function InlineCartDisplay({ onCheckout }: { onCheckout: () => void }) {
-  const { basket } = useGTProduce();
-  
-  // Guard against undefined basket
-  if (!basket) return null;
-  
-  const items = Object.values(basket);
-  const itemCount = items.reduce((sum, item) => sum + item.qty, 0);
-  const cartTotal = items.reduce((sum, item) => sum + item.qty * item.price, 0);
-
-  if (itemCount === 0) return null;
-
-  return (
-    <div className="cart-summary">
-      <div className="cart-info">
-        <span className="cart-count">{itemCount} item{itemCount !== 1 ? "s" : ""}</span>
-        <span className="cart-total">£{cartTotal.toFixed(2)}</span>
-      </div>
-      <button className="checkout-btn" onClick={onCheckout}>
-        Checkout
-      </button>
-    </div>
-  );
-}
+import { useState, useCallback } from 'react'
+import { useGTProduce } from '@/contexts/gt-produce-context'
+import {
+  Toolbar,
+  Header,
+  SearchBar,
+  SectionChooser,
+  PriceTable,
+  OrderFAB,
+  LoadingScreen,
+  Toast,
+  ConfirmDialog,
+  PinOverlay,
+  NameModal,
+  SalesNameModal,
+  OrderOverlay,
+  CheckoutOverlay,
+  ConfirmationOverlay,
+  DashboardOverlay
+} from './index'
 
 export function GTProduceApp() {
-  const { 
-    isLoading, 
-    showCheckout, 
-    setShowCheckout,
-    showDashboard,
-    showNameModal,
-    showPinOverlay
-  } = useGTProduce();
+  const {
+    isLoading,
+    currentSection,
+    DATA,
+    editorUnlocked
+  } = useGTProduce()
 
-  if (isLoading) {
-    return (
-      <div className="loading-screen">
-        <div className="loading-spinner"></div>
-        <p>Loading GT Produce...</p>
-      </div>
-    );
-  }
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const handleSearch = useCallback((query: string) => {
+    setSearchQuery(query)
+  }, [])
 
   return (
-    <div className="gt-produce-app">
-      <Header />
-      <SectionChooser />
-      <MainContent />
-      <InlineCartDisplay onCheckout={() => setShowCheckout(true)} />
+    <>
+      <LoadingScreen isLoading={isLoading} />
       
-      {/* Overlays */}
-      {showPinOverlay && <PinOverlay />}
-      {showNameModal && <NameModal />}
-      {showCheckout && <CheckoutOverlay />}
-      {showDashboard && <Dashboard />}
-      <Toast />
+      <div className={`app-container ${editorUnlocked ? '' : 'view-mode'}`}>
+        {currentSection === null ? (
+          <SectionChooser />
+        ) : (
+          <>
+            <Toolbar />
+            
+            <div className="page">
+              <Header />
+              
+              <SearchBar onSearch={handleSearch} />
+              
+              <div id="categories">
+                {DATA.map((category, index) => (
+                  <PriceTable
+                    key={category.id || index}
+                    category={category}
+                    categoryIndex={index}
+                    searchQuery={searchQuery}
+                  />
+                ))}
+              </div>
+              
+              <footer className="site-footer">
+                <p className="footer-brand">GT Produce</p>
+                <p>Prices subject to daily market availability. All prices exclude VAT.</p>
+              </footer>
+            </div>
+            
+            {/* Order FAB - Request Quote button */}
+            <OrderFAB />
+          </>
+        )}
+      </div>
+
+      {/* Overlays and Modals */}
+      <PinOverlay />
+      <NameModal />
+      <SalesNameModal />
+      <OrderOverlay />
+      <CheckoutOverlay />
+      <ConfirmationOverlay />
+      <DashboardOverlay />
       <ConfirmDialog />
-    </div>
-  );
+      <Toast />
+    </>
+  )
 }

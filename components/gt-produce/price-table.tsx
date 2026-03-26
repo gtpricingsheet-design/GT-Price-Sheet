@@ -1,175 +1,166 @@
-"use client";
+"use client"
 
-import { useGTProduce } from "@/contexts/gt-produce-context";
-import type { ProduceItem } from "@/lib/types";
+import { useCallback, memo } from 'react'
+import { useGTProduce } from '@/contexts/gt-produce-context'
+import { Trash2 } from 'lucide-react'
+import type { Category, ProduceItem } from '@/lib/types'
 
 interface PriceTableProps {
-  type: "fruit" | "veg";
+  category: Category
+  categoryIndex: number
+  searchQuery: string
 }
 
-export function PriceTable({ type }: PriceTableProps) {
+// Version 4 - No cart, no MainContent - clean implementation
+
+export const PriceTable = memo(function PriceTable({ category, categoryIndex, searchQuery }: PriceTableProps) {
   const {
-    fruitData,
-    vegData,
-    cart,
-    isAdmin,
-    addToCart,
-    removeFromCart,
-    updatePrice,
-    updateItemName,
-    addNewItem,
+    editorUnlocked,
+    currentSection,
+    updateItem,
     deleteItem,
-  } = useGTProduce();
+    addItem,
+    showConfirmDialog
+  } = useGTProduce()
 
-  const data = type === "fruit" ? fruitData : vegData;
-  const title = type === "fruit" ? "Fruits" : "Vegetables";
-  const tableClass = type === "fruit" ? "fruit-table" : "veg-table";
+  const section = currentSection as 'fruit' | 'veg'
+  const items = category.items || []
+  const allItems = category.subSections 
+    ? category.subSections.flatMap(s => s.items)
+    : items
 
-  const handleQuantityChange = (item: ProduceItem, delta: number) => {
-    const currentQty = cart[item.id]?.qty || 0;
-    const newQty = currentQty + delta;
+  const filteredItems = searchQuery 
+    ? allItems.filter(item => 
+        item.name.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : allItems
 
-    if (newQty > 0) {
-      addToCart(item, delta);
-    } else if (newQty === 0 && currentQty > 0) {
-      removeFromCart(item.id);
-    }
-  };
+  const handleNameChange = useCallback((itemIdx: number, value: string, subIdx?: number) => {
+    updateItem(categoryIndex, itemIdx, 'name', value, subIdx)
+  }, [categoryIndex, updateItem])
 
-  const handlePriceEdit = (item: ProduceItem) => {
-    if (!isAdmin) return;
-    const newPrice = prompt(`New price for ${item.name}:`, item.price.toString());
-    if (newPrice !== null) {
-      const parsed = parseFloat(newPrice);
-      if (!isNaN(parsed) && parsed >= 0) {
-        updatePrice(type, item.id, parsed);
-      }
-    }
-  };
+  const handlePriceChange = useCallback((itemIdx: number, value: string, subIdx?: number) => {
+    const numValue = parseFloat(value) || 0
+    updateItem(categoryIndex, itemIdx, 'price', numValue, subIdx)
+  }, [categoryIndex, updateItem])
 
-  const handleNameEdit = (item: ProduceItem) => {
-    if (!isAdmin) return;
-    const newName = prompt(`New name for ${item.name}:`, item.name);
-    if (newName !== null && newName.trim() !== "") {
-      updateItemName(type, item.id, newName.trim());
-    }
-  };
+  const handleAvailabilityChange = useCallback((itemIdx: number, value: boolean, subIdx?: number) => {
+    updateItem(categoryIndex, itemIdx, 'available', value, subIdx)
+  }, [categoryIndex, updateItem])
 
-  const handleAddItem = (category: string) => {
-    if (!isAdmin) return;
-    const name = prompt(`Enter name for new ${category} item:`);
-    if (name && name.trim()) {
-      const priceStr = prompt(`Enter price for ${name}:`);
-      if (priceStr !== null) {
-        const price = parseFloat(priceStr);
-        if (!isNaN(price) && price >= 0) {
-          addNewItem(type, category, name.trim(), price);
-        }
-      }
-    }
-  };
+  const handleDelete = useCallback((itemIdx: number, subIdx?: number) => {
+    showConfirmDialog('Remove this item?', () => {
+      deleteItem(categoryIndex, itemIdx, subIdx)
+    })
+  }, [categoryIndex, deleteItem, showConfirmDialog])
 
-  const handleDeleteItem = (item: ProduceItem) => {
-    if (!isAdmin) return;
-    if (confirm(`Delete "${item.name}"?`)) {
-      deleteItem(type, item.id);
-    }
-  };
+  const renderItem = (item: ProduceItem, itemIdx: number, subIdx?: number) => {
+    const isHidden = searchQuery && !item.name.toLowerCase().includes(searchQuery.toLowerCase())
+    
+    return (
+      <tr 
+        key={`${categoryIndex}-${subIdx ?? 'main'}-${itemIdx}`}
+        className={`${!item.available ? 'unavailable' : ''} ${isHidden ? 'search-hidden' : ''}`}
+      >
+        <td className="col-name">
+          {editorUnlocked ? (
+            <input
+              type="text"
+              className="editable-name"
+              value={item.name}
+              onChange={(e) => handleNameChange(itemIdx, e.target.value, subIdx)}
+            />
+          ) : (
+            <span className={!item.available ? 'text-[var(--unavailable-text)]' : ''}>
+              {item.name}
+            </span>
+          )}
+        </td>
+        <td className="col-price">
+          {editorUnlocked ? (
+            <input
+              type="number"
+              step="0.01"
+              className="editable-price"
+              value={item.price.toFixed(2)}
+              onChange={(e) => handlePriceChange(itemIdx, e.target.value, subIdx)}
+            />
+          ) : (
+            <span className={!item.available ? 'text-[var(--unavailable-text)]' : ''}>
+              £{item.price.toFixed(2)}
+            </span>
+          )}
+        </td>
+        {editorUnlocked && (
+          <td className="col-actions">
+            <label className="avail-toggle">
+              <input
+                type="checkbox"
+                checked={item.available}
+                onChange={(e) => handleAvailabilityChange(itemIdx, e.target.checked, subIdx)}
+              />
+              <span className="avail-slider" />
+            </label>
+            <button 
+              className="btn-delete-item"
+              onClick={() => handleDelete(itemIdx, subIdx)}
+              aria-label="Delete item"
+            >
+              <Trash2 className="w-3 h-3" />
+            </button>
+          </td>
+        )}
+      </tr>
+    )
+  }
 
-  // Group items by category
-  const categories = data.reduce((acc, item) => {
-    if (!acc[item.category]) {
-      acc[item.category] = [];
-    }
-    acc[item.category].push(item);
-    return acc;
-  }, {} as Record<string, ProduceItem[]>);
+  if (filteredItems.length === 0 && searchQuery) {
+    return null
+  }
 
   return (
-    <div className={`price-sheet ${tableClass}`}>
-      <div className="sheet-header">
-        <h2>{title}</h2>
+    <div 
+      className={`category is-visible ${filteredItems.length === 0 && searchQuery ? 'search-hidden' : ''}`}
+      data-cat-id={category.id}
+    >
+      <div 
+        className="cat-header" 
+        style={{ background: category.color }}
+        data-print-color={category.color}
+      >
+        <span className="cat-icon">{category.icon}</span>
+        <span className="cat-name">{category.name}</span>
+        <span className="cat-count">{allItems.length} items</span>
+        {editorUnlocked && (
+          <button 
+            className="btn-add-item"
+            onClick={() => addItem(categoryIndex)}
+          >
+            + Add
+          </button>
+        )}
       </div>
 
-      {Object.entries(categories).map(([category, items]) => (
-        <div key={category} className="category-section">
-          <div className="category-header">
-            <span>{category}</span>
-            {isAdmin && (
-              <button
-                className="add-item-btn"
-                onClick={() => handleAddItem(category)}
-                title={`Add new ${category} item`}
-              >
-                +
-              </button>
-            )}
-          </div>
-
-          <table>
-            <thead>
-              <tr>
-                <th>Item</th>
-                <th>Price</th>
-                <th>Qty</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((item) => {
-                const cartItem = cart[item.id];
-                const qty = cartItem?.qty || 0;
-
-                return (
-                  <tr key={item.id} className={qty > 0 ? "in-cart" : ""}>
-                    <td
-                      className={`item-name ${isAdmin ? "editable" : ""}`}
-                      onClick={() => handleNameEdit(item)}
-                    >
-                      {item.name}
-                      {isAdmin && (
-                        <button
-                          className="delete-item-btn"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteItem(item);
-                          }}
-                          title="Delete item"
-                        >
-                          x
-                        </button>
-                      )}
-                    </td>
-                    <td
-                      className={`item-price ${isAdmin ? "editable" : ""}`}
-                      onClick={() => handlePriceEdit(item)}
-                    >
-                      ${item.price.toFixed(2)}
-                    </td>
-                    <td className="qty-cell">
-                      <div className="qty-controls">
-                        <button
-                          className="qty-btn minus"
-                          onClick={() => handleQuantityChange(item, -1)}
-                          disabled={qty === 0}
-                        >
-                          -
-                        </button>
-                        <span className="qty-display">{qty}</span>
-                        <button
-                          className="qty-btn plus"
-                          onClick={() => handleQuantityChange(item, 1)}
-                        >
-                          +
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      ))}
+      <table className="price-table">
+        <thead>
+          <tr>
+            <th className="col-name">Product</th>
+            <th className="col-price">Price</th>
+            {editorUnlocked && <th className="col-actions">Actions</th>}
+          </tr>
+        </thead>
+        <tbody>
+          {category.subSections ? (
+            category.subSections.map((sub, subIdx) => (
+              sub.items.map((item, itemIdx) => renderItem(item, itemIdx, subIdx))
+            ))
+          ) : (
+            items.map((item, itemIdx) => renderItem(item, itemIdx))
+          )}
+        </tbody>
+      </table>
     </div>
-  );
-}
+  )
+})
+
+PriceTable.displayName = 'PriceTable'

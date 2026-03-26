@@ -1,114 +1,132 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { useGTProduce } from "@/contexts/gt-produce-context";
+import { useState } from 'react'
+import { useGTProduce } from '@/contexts/gt-produce-context'
 
 export function CheckoutOverlay() {
   const {
     showCheckout,
     setShowCheckout,
-    cart,
-    cartTotal,
-    customerName,
-    clearCart,
-    submitOrder,
-    showToast,
-  } = useGTProduce();
+    basket,
+    clientName,
+    deliveryMethod,
+    setDeliveryMethod,
+    submitOrder
+  } = useGTProduce()
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [notes, setNotes] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  if (!showCheckout) return null;
+  const fruitItems = Object.entries(basket)
+    .filter(([_, item]) => item.section === 'fruit')
+    .map(([key, item]) => ({ key, ...item }))
 
-  const cartItems = Object.values(cart);
+  const vegItems = Object.entries(basket)
+    .filter(([_, item]) => item.section === 'veg')
+    .map(([key, item]) => ({ key, ...item }))
+
+  const total = Object.values(basket).reduce((sum, item) => sum + item.qty * item.price, 0)
 
   const handleSubmit = async () => {
-    if (cartItems.length === 0) {
-      showToast("Your cart is empty", "error");
-      return;
-    }
+    setIsSubmitting(true)
+    await submitOrder(notes)
+    setIsSubmitting(false)
+    setNotes('')
+  }
 
-    setIsSubmitting(true);
-    try {
-      await submitOrder();
-      showToast("Order submitted successfully!", "success");
-      setShowCheckout(false);
-    } catch (error) {
-      showToast("Failed to submit order", "error");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleClear = () => {
-    clearCart();
-    showToast("Cart cleared", "success");
-  };
+  if (!showCheckout) return null
 
   return (
-    <div className="overlay checkout-overlay">
-      <div className="checkout-modal">
-        <div className="checkout-header">
-          <h2>Checkout</h2>
-          <button className="close-btn" onClick={() => setShowCheckout(false)}>
-            &times;
-          </button>
+    <div 
+      className="checkout-overlay open"
+      onClick={(e) => e.target === e.currentTarget && setShowCheckout(false)}
+    >
+      <div className="checkout-box">
+        <h2>Review Your Quote</h2>
+        <p className="checkout-customer">
+          Order for: <strong>{clientName}</strong>
+        </p>
+
+        <div className="checkout-field">
+          <label>Delivery Method</label>
+          <div className="delivery-toggle">
+            <button
+              className={`delivery-option ${deliveryMethod === 'collection' ? 'active' : ''}`}
+              onClick={() => setDeliveryMethod('collection')}
+            >
+              Collection
+            </button>
+            <button
+              className={`delivery-option ${deliveryMethod === 'delivery' ? 'active' : ''}`}
+              onClick={() => setDeliveryMethod('delivery')}
+            >
+              Delivery
+            </button>
+          </div>
         </div>
 
-        <div className="checkout-customer">
-          <span>Customer: </span>
-          <strong>{customerName || "Guest"}</strong>
+        <div className="checkout-field">
+          <label>Notes (optional)</label>
+          <textarea
+            placeholder="Any special requests..."
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+          />
         </div>
 
-        <div className="checkout-items">
-          {cartItems.length === 0 ? (
-            <div className="empty-cart">Your cart is empty</div>
-          ) : (
-            <table className="checkout-table">
-              <thead>
-                <tr>
-                  <th>Item</th>
-                  <th>Qty</th>
-                  <th>Price</th>
-                  <th>Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {cartItems.map((item) => (
-                  <tr key={item.id}>
-                    <td>{item.name}</td>
-                    <td>{item.qty}</td>
-                    <td>${item.price.toFixed(2)}</td>
-                    <td>${(item.qty * item.price).toFixed(2)}</td>
-                  </tr>
-                ))}
-              </tbody>
-              <tfoot>
-                <tr className="total-row">
-                  <td colSpan={3}>Total</td>
-                  <td>${cartTotal.toFixed(2)}</td>
-                </tr>
-              </tfoot>
-            </table>
+        <div className="checkout-summary">
+          {fruitItems.length > 0 && (
+            <>
+              <div className="checkout-section-label">Fruit</div>
+              {fruitItems.map(item => (
+                <div key={item.key} className="checkout-summary-item">
+                  <span>
+                    {item.name}
+                    <span className="item-detail"> x{item.qty}</span>
+                  </span>
+                  <span>£{(item.qty * item.price).toFixed(2)}</span>
+                </div>
+              ))}
+            </>
           )}
+
+          {vegItems.length > 0 && (
+            <>
+              <div className="checkout-section-label">Vegetables</div>
+              {vegItems.map(item => (
+                <div key={item.key} className="checkout-summary-item">
+                  <span>
+                    {item.name}
+                    <span className="item-detail"> x{item.qty}</span>
+                  </span>
+                  <span>£{(item.qty * item.price).toFixed(2)}</span>
+                </div>
+              ))}
+            </>
+          )}
+
+          <div className="checkout-summary-total">
+            <span>Total</span>
+            <span>£{total.toFixed(2)}</span>
+          </div>
         </div>
 
         <div className="checkout-actions">
-          <button
-            className="clear-cart-btn"
-            onClick={handleClear}
-            disabled={cartItems.length === 0}
+          <button 
+            className="btn btn-secondary"
+            onClick={() => setShowCheckout(false)}
           >
-            Clear Cart
+            Back
           </button>
-          <button
-            className="submit-order-btn"
+          <button 
+            className="btn btn-primary"
             onClick={handleSubmit}
-            disabled={isSubmitting || cartItems.length === 0}
+            disabled={isSubmitting}
           >
-            {isSubmitting ? "Submitting..." : "Submit Order"}
+            {isSubmitting ? 'Submitting...' : 'Submit Quote'}
           </button>
         </div>
       </div>
     </div>
-  );
+  )
 }
