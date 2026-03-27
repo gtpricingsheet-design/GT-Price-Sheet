@@ -1,15 +1,21 @@
 "use client"
 
-import { GTProduceProvider } from "@/contexts/gt-produce-context"
-import { GTProduceApp } from "@/components/gt-produce/gt-produce-app"
+import { useEffect } from 'react'
 
-// GT Produce - Price Sheet Application v4
-// Force fresh module load - no cart, no MainContent, no ProduceApp
-
-export default function HomePage() {
+export default function Home() {
+  useEffect(() => {
+    window.location.href = '/index.html'
+  }, [])
+  
   return (
-    <GTProduceProvider>
-      <GTProduceApp />
-    </GTProduceProvider>
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: '100vh',
+      fontFamily: 'system-ui, sans-serif'
+    }}>
+      <p>Loading GT Produce...</p>
+    </div>
   )
 }
